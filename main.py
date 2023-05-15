@@ -5,6 +5,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver import Chrome, ChromeOptions
 from selenium.webdriver.common.action_chains import ActionChains
+import pandas as pd
 import csv
 import os
 
@@ -16,7 +17,7 @@ print(DRIVER_PATH)
 opts = ChromeOptions()
 driver = webdriver.Chrome(executable_path=DRIVER_PATH, options=opts)
 driver.maximize_window()
-delay = 3
+delay = 5
 driver.get(url)
 
 # Get Directory Location
@@ -37,6 +38,7 @@ writer.writerow(header_list)
 
 
 def oklahoma():
+    time.sleep(5)
     # Select Roofing Contract Registration
     try:
         select_option = WebDriverWait(driver, delay).until(
@@ -92,7 +94,6 @@ def oklahoma():
                                             company_data = []
                                             row += 1
 
-
                                             # Check If business is In Good Standing or not
                                             try:
                                                 check_status = WebDriverWait(driver, delay).until(
@@ -108,6 +109,7 @@ def oklahoma():
                                                                 EC.visibility_of_element_located((By.XPATH,
                                                                                                   f'/html/body/app-root/app-main/div/app-content/app-search/div[2]/ngx-datatable/div/datatable-body/datatable-selection/datatable-scroller/datatable-row-wrapper[{row}]/datatable-body-row/div[2]/datatable-body-cell[1]/div')))
                                                             if click_business:
+                                                                # driver.execute_script("arguments[0].scrollIntoView();", click_business)
                                                                 click_business.click()
                                                                 # Scrape business Name
                                                                 try:
@@ -172,7 +174,7 @@ def oklahoma():
                                                                         company_data.append(data)
                                                                         writer.writerows(company_data)
 
-                                                                    if(div_length == 7):
+                                                                    if (div_length == 7):
                                                                         company = total_divs[2]
                                                                         dba = total_divs[3]
                                                                         expiration_time = total_divs[4]
@@ -348,6 +350,25 @@ def oklahoma():
         print('Error on Selecting Roofing Contract Registration')
 
 
+def remove_duplicates(csv_file_name):
+    # Read the CSV file into a list of lists
+    with open(csv_file_name, 'r', newline='') as f:
+        reader = csv.reader(f)
+        # Get the header row
+        header = next(reader)
+        data = [row for row in reader]
+    # Remove duplicates from the list of rows
+    unique_data = [header]
+    for row in data:
+        if row not in unique_data:
+            unique_data.append(row)
+    # Overwrite the original CSV file with the updated data
+    with open(csv_file_name, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerows(unique_data)
+
+
 oklahoma()
 f.close()
+# remove_duplicates(csv_file_name)
 driver.quit()
